@@ -70,35 +70,23 @@ export async function getUserData(uid) {
 }
 
 export async function getTeamData(tid) {
-  const q = query(usersCollection, where("teamId", "==", tid));
-  const querySnapshot = await getDocs(q);
+  const teamQuery = query(teamsCollection, where("teamId", "==", tid));
+  const querySnapshot = await getDocs(teamQuery);
+
   if (!querySnapshot.empty) {
-    return querySnapshot.docs[0].data();
+    const teamData = querySnapshot.docs[0].data();
+    return { ...teamData, teamId: tid };
   } else {
-    throw new Error("Team data not found.");
+    throw new Error(`Team data not found for teamId: ${tid}`);
   }
 }
-
 export async function getAddedTeams() {
   try {
     const user = await currentUser();
     const uid = user.uid;
     const userData = await getUserData(uid);
-
-    // If no teams are tracked, return an empty array
-    if (!userData.teams || userData.teams.length === 0) {
-      return [];
-    }
-
-    // Only perform the query if there are teams to fetch
-    const q = query(teamsCollection, where("teamId", "in", userData.teams));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      return querySnapshot.docs;
-    } else {
-      return []; // Return empty array if no teams found
-    }
+    console.log(userData.teams);
+    return userData.teams;
   } catch (error) {
     console.error("Error in getAddedTeams:", error);
     throw error;

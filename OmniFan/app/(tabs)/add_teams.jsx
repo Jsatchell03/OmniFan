@@ -265,8 +265,6 @@ const AddTeams = () => {
           data={displayedData}
           renderItem={renderTeamItem}
           keyExtractor={(item) => item.teamId}
-          onEndReached={loadMoreTeams}
-          onEndReachedThreshold={0.5}
           ListEmptyComponent={
             <Text className="text-white text-center mt-4">No teams found</Text>
           }

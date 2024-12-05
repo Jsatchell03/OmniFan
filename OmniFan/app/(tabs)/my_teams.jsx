@@ -9,42 +9,44 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getAddedTeams, removeTeamFromUser } from "../../lib/firebase";
+import {
+  getTeamData,
+  getAddedTeams,
+  removeTeamFromUser,
+} from "../../lib/firebase";
 import { icons } from "../../constants";
 import TeamCard from "../../components/TeamCard";
 
 const MyTeams = () => {
   const [query, setQuery] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
-  const [displayedData, setDisplayedData] = useState([]);
+  const [filteredTeams, setFilteredTeams] = useState([]);
   const [allTeams, setAllTeams] = useState([]);
 
-  // Fetch user's saved teams when component mounts
   useEffect(() => {
     const fetchUserTeams = async () => {
       try {
-        // getAddedTeams might now return an empty array
-        const teamsSnapshot = await getAddedTeams();
+        // Get team IDs added by the user
+        const teamIds = await getAddedTeams();
 
-        // Only process if there are teams
-        if (teamsSnapshot.length > 0) {
-          const teamsData = teamsSnapshot.map((doc) => ({
-            ...doc.data(),
-            teamId: doc.id,
-          }));
+        // Fetch detailed team data for each team ID
+        const teamPromises = teamIds.map(async (teamId) => {
+          try {
+            const teamData = await getTeamData(teamId);
+            return { ...teamData, teamId };
+          } catch (error) {
+            console.error(`Error fetching team data for ${teamId}:`, error);
+            return null;
+          }
+        });
 
-          // Store full team list
-          setAllTeams(teamsData);
+        // Wait for all team data to be fetched
+        const teamsData = (await Promise.all(teamPromises)).filter(
+          (team) => team !== null
+        );
 
-          // Initially display first 25 teams
-          setDisplayedData(teamsData.slice(0, 25));
-          setFilteredData(teamsData);
-        } else {
-          // No teams tracked
-          setAllTeams([]);
-          setDisplayedData([]);
-          setFilteredData([]);
-        }
+        // Update state
+        setAllTeams(teamsData);
+        setFilteredTeams(teamsData);
       } catch (error) {
         console.error("Error fetching user teams:", error);
         Alert.alert("Error", "Could not fetch your teams");
@@ -64,44 +66,22 @@ const MyTeams = () => {
       return itemData.indexOf(textData) > -1;
     });
 
-    // When searching, immediately show matching results
-    const displayData = newData.slice(0, 25);
-
-    setFilteredData(newData);
-    setDisplayedData(displayData);
-  };
-
-  // Load more teams when scrolling
-  const loadMoreTeams = () => {
-    if (displayedData.length >= filteredData.length) return;
-
-    const nextTeams = filteredData.slice(
-      displayedData.length,
-      displayedData.length + 25
-    );
-
-    setDisplayedData((prev) => [...prev, ...nextTeams]);
+    setFilteredTeams(newData);
   };
 
   // Handle removing a team from user's tracked teams
   const handleRemove = async (teamId) => {
     try {
-      // Remove team from user's tracked teams
       await removeTeamFromUser(teamId);
 
       // Remove the team from all data sources
-      const updatedAllTeams = allTeams.filter((team) => team.teamId !== teamId);
-      const updatedFilteredData = filteredData.filter(
-        (team) => team.teamId !== teamId
-      );
-      const updatedDisplayedData = displayedData.filter(
+      const updatedTeams = filteredTeams.filter(
         (team) => team.teamId !== teamId
       );
 
       // Update states
-      setAllTeams(updatedAllTeams);
-      setFilteredData(updatedFilteredData);
-      setDisplayedData(updatedDisplayedData);
+      setAllTeams(updatedTeams);
+      setFilteredTeams(updatedTeams);
 
       Alert.alert("Success", "Team removed successfully");
     } catch (error) {
@@ -112,11 +92,7 @@ const MyTeams = () => {
 
   // Render individual team card
   const renderTeamItem = ({ item }) => (
-    <TeamCard
-      team={item}
-      deleter={true} // This will change the plus icon to a delete icon
-      onAction={handleRemove} // Now uses handleRemove instead of handleAdd
-    />
+    <TeamCard team={item} deleter={true} onAction={handleRemove} />
   );
 
   return (
@@ -141,11 +117,9 @@ const MyTeams = () => {
       </View>
       <View className="flex-1 mt-4 px-2">
         <FlatList
-          data={displayedData}
+          data={filteredTeams}
           renderItem={renderTeamItem}
           keyExtractor={(item) => item.teamId}
-          onEndReached={loadMoreTeams}
-          onEndReachedThreshold={0.5}
           ListEmptyComponent={
             <Text className="text-white text-center mt-4">
               You haven't tracked any teams yet

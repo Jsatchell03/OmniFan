@@ -3,19 +3,19 @@ import { React, useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { currentUser, getUserData } from "../../lib/firebase";
 import EmptyState from "../../components/EmptyState";
+import MatchResultCard from "../../components/MatchResultCard";
+import { pastGamesList } from "../../lib/sport-api";
 
 const Home = () => {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
-
+  const [pastGames, setPastGames] = useState([]);
   useEffect(() => {
     const getUser = async () => {
       try {
         const pulledUser = await currentUser(); // Wait for the user to be available
-
         if (pulledUser) {
           setUser(pulledUser);
-
           // Fetch user data only after user state is updated
           const fetchedUserData = await getUserData(pulledUser.uid);
           setUserData(fetchedUserData);
@@ -27,13 +27,27 @@ const Home = () => {
       }
     };
 
+    const fetchPastGames = async () => {
+      try {
+        const games = await pastGamesList();
+        setPastGames(games);
+      } catch (error) {
+        console.error("Error fetching past games:", error);
+        // Optionally set an error state
+      } finally {
+      }
+    };
+
+    fetchPastGames();
     getUser();
   }, []);
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <Text>{item.id}</Text>}
+        data={pastGames}
+        keyExtractor={(item) => item.idEvent}
+        renderItem={({ item }) => <MatchResultCard match={item} />}
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
             <View className="justify-between items-start flex-row mb-6">
