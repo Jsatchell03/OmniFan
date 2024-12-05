@@ -31,7 +31,8 @@ yarn-error.*
 
 # local env files
 .env*.local
-
+GoogleService-Info.plist
+lib/ominfan-e31c7-firebase-adminsdk-putlv-d22e1fef1f.json
 # typescript
 *.tsbuildinfo
 
