@@ -4,6 +4,10 @@ import { Slot, SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import "../global.css";
 
+// Username: Jaedon1209
+// Email: Jsatchell2017@gmail.com
+// Password: JaedonSatchell1209
+
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
     "Poppins-Black": require("../assets/fonts/Poppins-Black.ttf"),

@@ -29,7 +29,7 @@ const FormField = ({
             <Image
               className={"w-6 h-6"}
               resizeMode="contain"
-              source={!showPassword ? icons.eye : icons.eyehide}
+              source={!showPassword ? icons.eye : icons.eyeHide}
             />
           </TouchableOpacity>
         )}

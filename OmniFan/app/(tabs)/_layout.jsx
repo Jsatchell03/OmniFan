@@ -52,6 +52,21 @@ const TabsLayout = () => {
           }}
         />
         <Tabs.Screen
+          name="add_teams"
+          options={{
+            title: "Add Teams",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.plus}
+                color={color}
+                name="My Teams"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="my_teams"
           options={{
             title: "My Teams",
