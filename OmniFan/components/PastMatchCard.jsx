@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Image } from "react-native";
 
-const MatchResultCard = ({ match }) => {
+export const PastMatchCard = ({ match }) => {
   if (!match || !match.strTimestamp) return null;
 
   const matchDate = new Date(match.strTimestamp);
@@ -58,7 +58,7 @@ const MatchResultCard = ({ match }) => {
               {match.intAwayScore}
             </Text>
           </View>
-          <Text className="text-gray-400 text-xs">{getMatchResult()}</Text>
+          {/* <Text className="text-gray-400 text-xs">{getMatchResult()}</Text> */}
         </View>
 
         <View className="items-center w-24">
@@ -83,4 +83,4 @@ const MatchResultCard = ({ match }) => {
   );
 };
 
-export default MatchResultCard;
+export default PastMatchCard;

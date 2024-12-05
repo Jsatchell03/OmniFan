@@ -7,6 +7,7 @@ import {
   FlatList,
   Text,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -21,40 +22,44 @@ const MyTeams = () => {
   const [query, setQuery] = useState("");
   const [filteredTeams, setFilteredTeams] = useState([]);
   const [allTeams, setAllTeams] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
+  const fetchUserTeams = async () => {
+    try {
+      // Get team IDs added by the user
+      const teamIds = await getAddedTeams();
+
+      // Fetch detailed team data for each team ID
+      const teamPromises = teamIds.map(async (teamId) => {
+        try {
+          const teamData = await getTeamData(teamId);
+          return { ...teamData, teamId };
+        } catch (error) {
+          console.error(`Error fetching team data for ${teamId}:`, error);
+          return null;
+        }
+      });
+
+      // Wait for all team data to be fetched
+      const teamsData = (await Promise.all(teamPromises)).filter(
+        (team) => team !== null
+      );
+
+      // Update state
+      setAllTeams(teamsData);
+      setFilteredTeams(teamsData);
+    } catch (error) {
+      console.error("Error fetching user teams:", error);
+      Alert.alert("Error", "Could not fetch your teams");
+    }
+  };
   useEffect(() => {
-    const fetchUserTeams = async () => {
-      try {
-        // Get team IDs added by the user
-        const teamIds = await getAddedTeams();
-
-        // Fetch detailed team data for each team ID
-        const teamPromises = teamIds.map(async (teamId) => {
-          try {
-            const teamData = await getTeamData(teamId);
-            return { ...teamData, teamId };
-          } catch (error) {
-            console.error(`Error fetching team data for ${teamId}:`, error);
-            return null;
-          }
-        });
-
-        // Wait for all team data to be fetched
-        const teamsData = (await Promise.all(teamPromises)).filter(
-          (team) => team !== null
-        );
-
-        // Update state
-        setAllTeams(teamsData);
-        setFilteredTeams(teamsData);
-      } catch (error) {
-        console.error("Error fetching user teams:", error);
-        Alert.alert("Error", "Could not fetch your teams");
-      }
-    };
-
     fetchUserTeams();
   }, []);
+
+  const onRefresh = async () => {
+    fetchUserTeams();
+  };
 
   // Search functionality
   const updateSearch = (text) => {
@@ -118,6 +123,13 @@ const MyTeams = () => {
       <View className="flex-1 mt-4 px-2">
         <FlatList
           data={filteredTeams}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#fff"
+            />
+          }
           renderItem={renderTeamItem}
           keyExtractor={(item) => item.teamId}
           ListEmptyComponent={
