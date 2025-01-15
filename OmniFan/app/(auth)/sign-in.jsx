@@ -12,7 +12,6 @@ const SignIn = () => {
       try {
         const user = await currentUser(); // Wait for the user to be available
         if (user) {
-          console.log(user);
           router.replace("/home"); // Redirect if user is logged in
         }
       } catch (error) {

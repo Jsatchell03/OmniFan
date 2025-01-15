@@ -10,16 +10,6 @@ export const PastMatchCard = ({ match }) => {
     day: "numeric",
   });
 
-  const getMatchResult = () => {
-    const homeScore = parseInt(match.intHomeScore);
-    const awayScore = parseInt(match.intAwayScore);
-    return homeScore > awayScore
-      ? "Home Win"
-      : awayScore > homeScore
-      ? "Away Win"
-      : "Draw";
-  };
-
   return (
     <View className="w-[280px] bg-black-100 rounded-lg p-4 border-2 border-black-200">
       <View className="flex-row items-center mb-2">

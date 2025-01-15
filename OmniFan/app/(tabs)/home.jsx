@@ -44,7 +44,6 @@ const Home = () => {
     try {
       const games = await upcomingGamesList();
       setUpcomingGames(games);
-      console.log(upcomingGames);
     } catch (error) {
       console.error("Error fetching upcoming games:", error);
       // Optionally set an error state
@@ -96,7 +95,7 @@ const Home = () => {
               <PastScores data={pastGames} />
             </View>
             <Text className="text-gray-100 text-lg font-pregular mb-3">
-              Upcoming Games
+              Live / Upcoming Games
             </Text>
           </View>
         )}

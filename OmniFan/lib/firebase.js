@@ -19,6 +19,7 @@ import {
   doc,
   getDocs,
 } from "firebase/firestore";
+
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
@@ -85,7 +86,6 @@ export async function getAddedTeams() {
     const user = await currentUser();
     const uid = user.uid;
     const userData = await getUserData(uid);
-    console.log(userData.teams);
     return userData.teams;
   } catch (error) {
     console.error("Error in getAddedTeams:", error);
@@ -163,7 +163,6 @@ export async function removeTeamFromUser(teamId) {
 export async function createUser(email, password, username) {
   loading = true;
   try {
-    console.log("started creation");
     await createUserWithEmailAndPassword(auth, email, password);
     await addDoc(collection(db, "users"), {
       email: email,
@@ -182,16 +181,13 @@ export async function createUser(email, password, username) {
       console.error(error);
     };
   } finally {
-    console.log(email, password);
     loading = false;
-    console.log(auth.currentUser);
   }
 }
 
 export async function signIn(email, password) {
   loading = true;
   try {
-    console.log("started sign in");
     await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
     if (error.code === "auth/invalid-email") {
@@ -202,8 +198,6 @@ export async function signIn(email, password) {
     }
     console.error(error);
   } finally {
-    console.log(email, password);
     loading = false;
-    console.log(auth.currentUser);
   }
 }

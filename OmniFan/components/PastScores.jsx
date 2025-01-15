@@ -11,9 +11,9 @@ const PastScores = ({ data }) => {
         keyExtractor={(item) => item.idEvent}
         horizontal
         contentContainerStyle={{ paddingHorizontal: 8, gap: 12 }}
-        snapToAlignment="center"
+        // snapToAlignment="center"
         decelerationRate="fast"
-        snapToInterval={300}
+        // snapToInterval={294}
         showsHorizontalScrollIndicator={false}
       />
     </View>
